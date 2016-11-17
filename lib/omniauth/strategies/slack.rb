@@ -29,7 +29,8 @@ module OmniAuth
           name: user_identity['name'],
           email: user_identity['email'],    # Requires the identity.email scope
           image: user_identity['image_48'], # Requires the identity.avatar scope
-          team_name: team_identity['name']  # Requires the identity.team scope
+          team_id: team_identity['id'],
+          team_name: team_identity['name'],  # Requires the identity.team scope
         }
 
         unless skip_info?
