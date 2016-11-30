@@ -22,15 +22,16 @@ module OmniAuth
       # User ID is not guaranteed to be globally unique across all Slack users.
       # The combination of user ID and team ID, on the other hand, is guaranteed
       # to be globally unique.
-      uid { "#{user_identity['id']}-#{team_identity['id']}" }
+      uid { "#{user_identity['id'] || auth_info['user_id']}-#{team_identity['id'] || auth_info['team_id']}" }
 
       info do
         hash = {
-          name: user_identity['name'],
+          name: user_identity['name'] || auth_info['user'] ,
           email: user_identity['email'],    # Requires the identity.email scope
           image: user_identity['image_48'], # Requires the identity.avatar scope
-          team_id: team_identity['id'],
-          team_name: team_identity['name'],  # Requires the identity.team scope
+          user_id: user_identity['id'] || auth_info['user_id'],
+          team_id: team_identity['id'] || auth_info['team_id'],
+          team_name: team_identity['name'] || auth_info['team'],  # Requires the identity.team scope
         }
 
         unless skip_info?
@@ -45,6 +46,7 @@ module OmniAuth
       extra do
         {
           raw_info: {
+            auth_info: auth_info,
             user_info: user_info,         # Requires the users:read scope
             team_info: team_info,         # Requires the team:read scope
             web_hook_info: web_hook_info,
@@ -61,6 +63,10 @@ module OmniAuth
             end
           end
         end
+      end
+
+      def auth_info
+        @auth_info ||= access_token.get('/api/auth.test').parsed
       end
 
       def identity
